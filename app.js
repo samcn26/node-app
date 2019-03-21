@@ -1,7 +1,23 @@
 const express = require("express")
 const exphbs = require('express-handlebars');
-const bodyParser = require('body-parser')
+const bodyParser = require('body-parser');
+const mongoose = require('mongoose');
 const app = express();
+
+// connect to mongodb
+mongoose.connect("mongodb://localhost/node-app")
+.then(()=>{
+    console.log("Mongodb connected")
+})
+.catch(err => {
+    console.log(err)
+})
+
+// import model
+require("./models/Idea")
+
+const Idea = mongoose.model('ideas')
+
 // body-parser
 var jsonParser = bodyParser.json()
 var urlencodedParser = bodyParser.urlencoded({ extended: false })
