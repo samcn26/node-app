@@ -5,7 +5,7 @@ const mongoose = require('mongoose');
 const app = express();
 
 // connect to mongodb
-mongoose.connect("mongodb://localhost/node-app")
+mongoose.connect("mongodb://localhost/node-app",{useNewUrlParser:true})
 .then(()=>{
     console.log("Mongodb connected")
 })
@@ -43,6 +43,16 @@ app.get("/about", (req, res) => {
     res.render("about");
 })
 
+app.get("/ideas", (req, res) => {
+    Idea.find({})
+    .sort({date:"desc"})
+    .then(ideas => {
+        res.render("ideas/index",{
+            ideas:ideas
+        });
+    })   
+})
+
 app.get("/ideas/add", (req, res) => {
     res.render("ideas/add");
 })
@@ -65,7 +75,15 @@ app.post("/ideas", urlencodedParser, (req, res) => {
             details:req.body.details
         });
     }else{
-        res.send("ok");
+        const newUser = {
+            title:req.body.title,
+            details:req.body.details
+        }
+        new Idea(newUser).save().then(idea =>{
+            res.redirect('/ideas')
+        }).catch(err => {
+            console.log(err)
+        })
     }
 })
 
