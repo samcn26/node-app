@@ -53,8 +53,22 @@ app.get("/ideas", (req, res) => {
     })   
 })
 
+// add
 app.get("/ideas/add", (req, res) => {
     res.render("ideas/add");
+})
+
+// edit  :id
+app.get("/ideas/edit/:id", (req, res) => { 
+    console.log(req.params.id)
+    Idea.findById(req.params.id)
+    .then(idea => {
+        res.render("ideas/edit",{
+            title:idea.title,
+            details:idea.details
+        })
+    })  
+    
 })
 
 app.post("/ideas", urlencodedParser, (req, res) => {
