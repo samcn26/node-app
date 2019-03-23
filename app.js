@@ -2,6 +2,7 @@ const express = require("express")
 const exphbs = require('express-handlebars');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
+const methodOverride = require('method-override')
 const app = express();
 
 // connect to mongodb
@@ -22,13 +23,14 @@ const Idea = mongoose.model('ideas')
 var jsonParser = bodyParser.json()
 var urlencodedParser = bodyParser.urlencoded({ extended: false })
 
-
-
 // handlebars middleware
 app.engine('handlebars', exphbs({
     defaultLayout: 'main'
 }));
 app.set('view engine', 'handlebars');
+
+// method-override
+app.use(methodOverride('_method'))
 
 // 配置路由
 app.get("/", (req, res) => {
@@ -60,15 +62,28 @@ app.get("/ideas/add", (req, res) => {
 
 // edit  :id
 app.get("/ideas/edit/:id", (req, res) => { 
-    console.log(req.params.id)
     Idea.findById(req.params.id)
     .then(idea => {
         res.render("ideas/edit",{
-            title:idea.title,
-            details:idea.details
+            idea:idea
         })
     })  
     
+})
+
+// update
+app.put("/ideas/:id",urlencodedParser,(req,res) => {
+    Idea.findOne({
+        _id:req.params.id
+    })
+    .then(idea => {
+        idea.title = req.body.title;
+        idea.details = req.body.details;
+        idea.save()
+        .then((idea) => {
+            res.redirect("/ideas")
+        })
+    })
 })
 
 app.post("/ideas", urlencodedParser, (req, res) => {
