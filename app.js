@@ -7,6 +7,10 @@ const session = require('express-session')
 const flash = require('connect-flash');
 const app = express();
 
+// load routers
+const ideas = require('./routes/ideas');
+const users = require('./routes/users')
+
 // connect to mongodb
 mongoose.connect("mongodb://localhost/node-app",{useNewUrlParser:true})
 .then(()=>{
@@ -65,92 +69,9 @@ app.get("/about", (req, res) => {
     res.render("about");
 })
 
-app.get("/ideas", (req, res) => {
-    Idea.find({})
-    .sort({date:"desc"})
-    .then(ideas => {
-        res.render("ideas/index",{
-            ideas:ideas
-        });
-    })   
-})
-
-// add
-app.get("/ideas/add", (req, res) => {
-    res.render("ideas/add");
-})
-
-// edit  :id
-app.get("/ideas/edit/:id", (req, res) => { 
-    Idea.findById(req.params.id)
-    .then(idea => {
-        res.render("ideas/edit",{
-            idea:idea
-        })
-    })  
-    
-})
-
-// update
-app.put("/ideas/:id",urlencodedParser,(req,res) => {
-    Idea.findOne({
-        _id:req.params.id
-    })
-    .then(idea => {
-        idea.title = req.body.title;
-        idea.details = req.body.details;
-        idea.save()
-        .then((idea) => {
-            req.flash('success_msg',"edit success")
-            res.redirect("/ideas")
-        })
-    })
-})
-
-// delete
-app.delete("/ideas/:id",(req,res) => {
-    // Idea.deleteOne({
-    //     _id:req.params.id
-    // })
-    Idea.remove({
-        _id:req.params.id
-    })
-    .then(() => {
-        req.flash('success_msg',"delete success")
-        res.redirect("/ideas")
-    })
-})
-
-app.post("/ideas", urlencodedParser, (req, res) => {
-    // console.log(req.body);
-    let errors = [];
-
-    if (!req.body.title) {
-        errors.push({ text: "please add title" })
-    } 
-    if(!req.body.details){
-        errors.push({ text: "please add details" })
-    }
-
-    if (errors.length>0){
-        res.render("ideas/add",{
-            errors:errors,
-            title:req.body.title,
-            details:req.body.details
-        });
-    }else{
-        const newUser = {
-            title:req.body.title,
-            details:req.body.details
-        }
-        new Idea(newUser).save().then(idea =>{
-            req.flash('success_msg',"add success")
-            res.redirect('/ideas')
-        }).catch(err => {
-            console.log(err)
-        })
-    }
-})
+// 使用路由
+app.use("/ideas",ideas)
+app.use("/users",users)
 
 const port = 5000;
 
