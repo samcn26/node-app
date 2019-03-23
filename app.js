@@ -3,6 +3,8 @@ const exphbs = require('express-handlebars');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 const methodOverride = require('method-override')
+const session = require('express-session')
+const flash = require('connect-flash');
 const app = express();
 
 // connect to mongodb
@@ -31,6 +33,24 @@ app.set('view engine', 'handlebars');
 
 // method-override
 app.use(methodOverride('_method'))
+
+// express-session & flash
+app.use(session({
+    // 密钥
+    secret: 'secret',
+    resave: true,
+    saveUninitialized: true
+    // cookie: { secure: true }
+  }))
+
+app.use(flash())
+
+// 配置全局变量
+app.use((req,res,next) => {
+    res.locals.success_msg = req.flash('success_msg');
+    res.locals.error_msg = req.flash('error_msg');
+    next();
+})
 
 // 配置路由
 app.get("/", (req, res) => {
@@ -81,6 +101,7 @@ app.put("/ideas/:id",urlencodedParser,(req,res) => {
         idea.details = req.body.details;
         idea.save()
         .then((idea) => {
+            req.flash('success_msg',"edit success")
             res.redirect("/ideas")
         })
     })
@@ -95,6 +116,7 @@ app.delete("/ideas/:id",(req,res) => {
         _id:req.params.id
     })
     .then(() => {
+        req.flash('success_msg',"delete success")
         res.redirect("/ideas")
     })
 })
@@ -122,6 +144,7 @@ app.post("/ideas", urlencodedParser, (req, res) => {
             details:req.body.details
         }
         new Idea(newUser).save().then(idea =>{
+            req.flash('success_msg',"add success")
             res.redirect('/ideas')
         }).catch(err => {
             console.log(err)
