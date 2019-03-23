@@ -86,6 +86,19 @@ app.put("/ideas/:id",urlencodedParser,(req,res) => {
     })
 })
 
+// delete
+app.delete("/ideas/:id",(req,res) => {
+    // Idea.deleteOne({
+    //     _id:req.params.id
+    // })
+    Idea.remove({
+        _id:req.params.id
+    })
+    .then(() => {
+        res.redirect("/ideas")
+    })
+})
+
 app.post("/ideas", urlencodedParser, (req, res) => {
     // console.log(req.body);
     let errors = [];
