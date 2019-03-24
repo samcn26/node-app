@@ -2,7 +2,7 @@
     <div class="col-md-6 mx-auto">
         <div class="card card-body">
             <img src="/img/github.png" alt="..." class="logo">
-            <form class="form-signin" action="/users/login">
+            <form action="/users/login" method="POST">
                 <div class="form-group">
                     <label for="email">Email address</label>
                     <input type="email" name="email" class="form-control" required value="{{user.email}}">

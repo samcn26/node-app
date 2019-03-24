@@ -23,8 +23,28 @@ router.get("/register", (req, res) => {
 })
 
 
-router.post("/login", (req, res) => {
-    res.render("users/login");
+router.post("/login", urlencodedParser, (req, res) => {
+    User.findOne({
+        email:req.body.email
+    }).then((user) => {
+        if (user) {
+            // check pwd
+            bcrypt.compare(req.body.password, user.password, (err, isMatch) => {
+                if (err) throw err;
+                if (isMatch) {
+                    req.flash("success_msg","login success")
+                    res.redirect('/ideas')
+                }else{                   
+                    req.flash("error_msg","password wrong")
+                    res.redirect('/users/login')
+                }
+            });
+        }else{
+            // not existed
+            req.flash("error_msg","user not existed")
+            res.redirect('/users/login')
+        }        
+    })
 })
 
 router.post("/register", urlencodedParser,(req, res) => {
@@ -42,7 +62,6 @@ router.post("/register", urlencodedParser,(req, res) => {
     }
 
     if (errors.length > 0) {
-        console.log(errors)
         res.render('users/register',{
             errors: errors,
             name: req.body.name,
