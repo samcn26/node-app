@@ -5,6 +5,7 @@ const mongoose = require('mongoose');
 const methodOverride = require('method-override')
 const session = require('express-session')
 const flash = require('connect-flash');
+const path = require('path')
 const app = express();
 
 // load routers
@@ -28,6 +29,9 @@ const Idea = mongoose.model('ideas')
 // body-parser
 var jsonParser = bodyParser.json()
 var urlencodedParser = bodyParser.urlencoded({ extended: false })
+
+// use static file
+app.use(express.static(path.join(__dirname,'public')));
 
 // handlebars middleware
 app.engine('handlebars', exphbs({
