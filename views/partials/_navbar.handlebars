@@ -16,20 +16,27 @@
             </ul>
 
             <ul class="navbar-nav ml-auto">
+                {{#if user}}
+                <li class="nav-item dropdown">
+                    <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" id="navbarDropdownMenuLink">Idea
+                        Course</a>
+                    <div class="dropdown-menu">
+                        <a href="/ideas" class="dropdown-item">Wish</a>
+                        <a href="/ideas/add" class="dropdown-item">Add</a>
+                    </div>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/users/logout">Log out</a>
+                </li>
+
+                {{else}}
                 <li class="nav-item">
                     <a class="nav-link" href="/users/register">Regist</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="/users/login">Log In</a>
                 </li>
-                <li class="nav-item dropdown">
-                    <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" 
-                    id="navbarDropdownMenuLink">Idea Course</a>
-                    <div class="dropdown-menu">
-                        <a href="/ideas" class="dropdown-item">Wish</a>
-                        <a href="/ideas/add" class="dropdown-item">Add</a>
-                    </div>
-                </li>               
+                {{/if}}
             </ul>
         </div>
     </div>

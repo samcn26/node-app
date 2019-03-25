@@ -1,16 +1,19 @@
-const express = require("express")
+const express = require("express");
 const exphbs = require('express-handlebars');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
-const methodOverride = require('method-override')
-const session = require('express-session')
+const methodOverride = require('method-override');
+const session = require('express-session');
 const flash = require('connect-flash');
-const path = require('path')
+const path = require('path');
+const passport = require('passport');
 const app = express();
 
 // load routers
 const ideas = require('./routes/ideas');
-const users = require('./routes/users')
+const users = require('./routes/users');
+
+require("./config/passport")(passport)
 
 // connect to mongodb
 mongoose.connect("mongodb://localhost/node-app",{useNewUrlParser:true})
@@ -49,7 +52,11 @@ app.use(session({
     resave: true,
     saveUninitialized: true
     // cookie: { secure: true }
-  }))
+}))
+
+// follow session
+app.use(passport.initialize());
+app.use(passport.session());
 
 app.use(flash())
 
@@ -57,6 +64,9 @@ app.use(flash())
 app.use((req,res,next) => {
     res.locals.success_msg = req.flash('success_msg');
     res.locals.error_msg = req.flash('error_msg');
+    res.locals.error = req.flash('error');
+    // 登陆后操作, 没有返回null
+    res.locals.user = req.user || null;
     next();
 })
 

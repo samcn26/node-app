@@ -3,7 +3,9 @@ const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 
 // 路由
-const router = express.Router()
+const router = express.Router();
+
+const {ensureAuthenticated} = require("../helpers/auth");
 
 // import model
 require("../models/Idea")
@@ -14,7 +16,7 @@ var jsonParser = bodyParser.json()
 var urlencodedParser = bodyParser.urlencoded({ extended: false })
 
 // courses
-router.get("/", (req, res) => {
+router.get("/", ensureAuthenticated, (req, res) => {
     Idea.find({})
     .sort({date:"desc"})
     .then(ideas => {
@@ -25,7 +27,7 @@ router.get("/", (req, res) => {
 })
 
 // edit  :id
-router.get("/edit/:id", (req, res) => { 
+router.get("/edit/:id", ensureAuthenticated, (req, res) => { 
     Idea.findById(req.params.id)
     .then(idea => {
         res.render("ideas/edit",{
@@ -36,7 +38,7 @@ router.get("/edit/:id", (req, res) => {
 })
 
 // update
-router.put("/:id",urlencodedParser,(req,res) => {
+router.put("/:id", ensureAuthenticated, urlencodedParser,(req,res) => {
     Idea.findOne({
         _id:req.params.id
     })
@@ -52,7 +54,7 @@ router.put("/:id",urlencodedParser,(req,res) => {
 })
 
 // delete
-router.delete("/:id",(req,res) => {
+router.delete("/:id", ensureAuthenticated, (req,res) => {
     // Idea.deleteOne({
     //     _id:req.params.id
     // })
@@ -66,7 +68,7 @@ router.delete("/:id",(req,res) => {
 })
 
 // add
-router.get("/add", (req, res) => {
+router.get("/add", ensureAuthenticated, (req, res) => {
     res.render("ideas/add");
 })
 

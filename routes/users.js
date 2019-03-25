@@ -2,6 +2,7 @@ const express = require("express")
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt'); 
+const passport = require('passport')
 
 // 路由
 const router = express.Router()
@@ -22,29 +23,20 @@ router.get("/register", (req, res) => {
     res.render("users/register");
 })
 
+// log out
+router.get("/logout",(req,res) => {
+    req.logOut();
+    req.flash("success_msg","log out success");
+    res.redirect("/users/login");
+})
 
-router.post("/login", urlencodedParser, (req, res) => {
-    User.findOne({
-        email:req.body.email
-    }).then((user) => {
-        if (user) {
-            // check pwd
-            bcrypt.compare(req.body.password, user.password, (err, isMatch) => {
-                if (err) throw err;
-                if (isMatch) {
-                    req.flash("success_msg","login success")
-                    res.redirect('/ideas')
-                }else{                   
-                    req.flash("error_msg","password wrong")
-                    res.redirect('/users/login')
-                }
-            });
-        }else{
-            // not existed
-            req.flash("error_msg","user not existed")
-            res.redirect('/users/login')
-        }        
-    })
+
+router.post("/login", urlencodedParser, (req, res,next) => {
+    passport.authenticate('local', {
+        successRedirect: '/ideas',
+        failureRedirect: '/users/login',
+        failureFlash: true
+    })(req, res,next)
 })
 
 router.post("/register", urlencodedParser,(req, res) => {
