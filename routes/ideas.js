@@ -17,7 +17,9 @@ var urlencodedParser = bodyParser.urlencoded({ extended: false })
 
 // courses
 router.get("/", ensureAuthenticated, (req, res) => {
-    Idea.find({})
+    Idea.find({
+        user: req.user.id
+    })
     .sort({date:"desc"})
     .then(ideas => {
         res.render("ideas/index",{
@@ -30,9 +32,15 @@ router.get("/", ensureAuthenticated, (req, res) => {
 router.get("/edit/:id", ensureAuthenticated, (req, res) => { 
     Idea.findById(req.params.id)
     .then(idea => {
-        res.render("ideas/edit",{
-            idea:idea
-        })
+        if (idea.user != req.user.id) {
+            // not same user
+            req.flash("error_msg", "not same user");
+            res.redirect("/ideas");
+        }else{
+            res.render("ideas/edit",{
+                idea:idea
+            })
+        }       
     })  
     
 })
@@ -92,7 +100,8 @@ router.post("/", urlencodedParser, (req, res) => {
     }else{
         const newUser = {
             title:req.body.title,
-            details:req.body.details
+            details:req.body.details,
+            user: req.user.id
         }
         new Idea(newUser).save().then(idea =>{
             req.flash('success_msg',"add success")
