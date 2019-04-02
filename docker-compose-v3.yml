@@ -13,27 +13,45 @@ services:
           memory: 50M
     ports:
      - "5000:5000"
+    deploy:
+      placement:
+        constraints: [node.role == manager]
     networks:
      - web
     depends_on:
      - mongodb
   
   mongodb:
-    image: mongo:latest
+    image: mongo
     ports:
-      - "27017:27017"
-    deploy:
-      placement:
-        constraints: [node.role == manager]
+      - 27017:27017
     volumes:
-     - ~/Docker/mongo:/data/db
+      - db-mongo:/data/db
+    deploy:
+      replicas: 2
+      restart_policy:
+        condition: on-failure
     networks:
-     - web
+      - web
 
+  mongo-express:
+    image: mongo-express
+    restart: always
+#    links:
+#      - mongodb:mongo
+#    depends_on:
+#      - mongodb
+    networks:
+      - web
+    ports:
+      - 9081:8081
+    environment:
+      ME_CONFIG_MONGODB_SERVER: mongodb
+ 
   visualizer:
     image: dockersamples/visualizer
     ports:
-      - "8080:8080"
+      - "9080:8080"
     stop_grace_period: 1m30s
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
@@ -44,3 +62,6 @@ services:
   
 networks:
   web:
+
+volumes:
+  db-mongo:
