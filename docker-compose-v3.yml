@@ -1,0 +1,34 @@
+version: "3"
+
+services:
+  web:
+    image: node-app
+    deploy:
+      replicas: 2
+      restart_policy:
+        condition: on-failure
+      resources:
+        limits:
+          cpus: "0.1"
+          memory: 50M
+    ports:
+     - "5000:5000"
+    networks:
+     - web
+    depends_on:
+     - mongodb
+  
+  mongodb:
+    image: mongo:latest
+    ports:
+      - "27017:27017"
+    deploy:
+      placement:
+        constraints: [node.role == manager]
+    volumes:
+     - ~/Docker/mongo:/data/db
+    networks:
+     - web
+  
+networks:
+  web:
